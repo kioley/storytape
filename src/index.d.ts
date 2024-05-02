@@ -1,9 +1,12 @@
+export interface Settings {
+  ignoreTitleCase?: bolean
+  normalizeText?: boolean
+}
+
 export interface Tape {
   type: "speech" | "options" | "end"
   speech: TapeSpeech
   options: TapeOptions
-  next: () => void
-  choiceOption: (value: string | number) => void
 }
 
 export interface TapeSpeech {
