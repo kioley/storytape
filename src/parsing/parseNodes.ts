@@ -1,4 +1,4 @@
-import { YarnSpinnerNode } from "."
+import { YarnSpinnerNode } from ".."
 
 export function parseNodes(yarnRaw: string) {
   const nodes: YarnSpinnerNode[] = []

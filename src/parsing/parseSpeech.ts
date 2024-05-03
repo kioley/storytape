@@ -2,10 +2,9 @@ import {
   extractCondition,
   clearID,
   hideEscapingChars,
-  normalizeString,
   showEscapingChars,
   clearComment,
-} from "./utils/strings"
+} from "../utils/strings"
 
 export function parseSpeech(line: string): [string, string] {
   line = hideEscapingChars(line)
@@ -32,5 +31,5 @@ function extractSpeech(speech: string): [string, string] {
   name = showEscapingChars(name)
   text = showEscapingChars(text)
 
-  return [normalizeString(name), normalizeString(text)]
+  return [name, text]
 }

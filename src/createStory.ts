@@ -1,6 +1,9 @@
-import { Tape, YarnSpinnerNode } from "."
-import { parseNodes } from "./parseNodes"
-import { parseSpeech } from "./parseSpeech"
+import { Pragma, Settings, Tape, YarnSpinnerNode } from "."
+import { createPragma } from "./functions/createPragma"
+import { createSettings } from "./functions/createSettings"
+import { parseNodes } from "./parsing/parseNodes"
+import { parseSpeech } from "./parsing/parseSpeech"
+import { parseVariable } from "./parsing/parseVariable"
 import {
   lineIsCommand,
   lineIsComment,
@@ -10,18 +13,24 @@ import {
   lineIsOption,
   lineIsVariable,
 } from "./utils"
+import { normalizeString } from "./utils/strings"
 
 export function createStory(
-  yarnSpinnerScriptString: string
+  yarnSpinnerScriptString: string,
+  pragma?: Partial<Pragma>,
+  settings?: Settings
 ): [Tape, (option?: number | string) => void] {
+  const _pragma = createPragma(pragma)
+  const _settings = createSettings(settings)
+  const normalize = _settings.normalizeText
+
   const nodes = parseNodes(yarnSpinnerScriptString)
   let body = getNode(nodes, "start").body
 
   let index = -1
 
-  // let options: TapeOptions
-  // let speech: TapeSpeech
   const state: Tape = {
+    variables: _pragma.variables,
     type: "speech",
     speech: {
       name: "",
@@ -47,7 +56,8 @@ export function createStory(
       if (lineIsIfBlockStart(line)) {
         continue
       } else if (lineIsVariable(line)) {
-        continue
+        const [name, value] = parseVariable(line, _pragma)
+        _pragma.variables[name] = value
       } else if (lineIsJump(line)) {
         continue
       } else if (lineIsCommand(line)) {
@@ -56,7 +66,9 @@ export function createStory(
         continue
       } else {
         state.type = "speech"
-        ;[state.speech.name, state.speech.text] = parseSpeech(line)
+        ;[state.speech.name, state.speech.text] = parseSpeech(line).map((s) =>
+          normalizeString(s, normalize)
+        )
         break
       }
     }

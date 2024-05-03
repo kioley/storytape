@@ -1,5 +1,3 @@
-import { _settings } from "../settings"
-
 const escapingChars = {
   "\\": "L34KLFdfg3",
   "#": "jt5437teWY",
@@ -11,8 +9,8 @@ const escapingChars = {
   ":": "Af0AS9f0sQ",
 }
 
-export function normalizeString(str: string): string {
-  return _settings.normalizeText ? str.trim().replace(/\s+/g, " ") : str
+export function normalizeString(str: string, normalize: boolean): string {
+  return normalize ? str.trim().replace(/\s+/g, " ") : str
 }
 
 export function clearID(str: string): string {
