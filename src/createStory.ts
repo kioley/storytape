@@ -48,8 +48,10 @@ export function createStory(
 
     let line: string
 
-    while (index < body.length) {
-      index++
+    while (++index < body.length) {
+      // console.log("story:", body[index])
+
+      // index++
       line = body[index]
       if (lineIsEmpty(line) || lineIsComment(line)) continue
 
@@ -65,8 +67,11 @@ export function createStory(
       } else if (lineIsOption(line)) {
         continue
       } else {
+        const speech = parseSpeech(line, _pragma)
+        if (!speech) continue
+
         state.type = "speech"
-        ;[state.speech.name, state.speech.text] = parseSpeech(line).map((s) =>
+        ;[state.speech.name, state.speech.text] = speech.map((s) =>
           normalizeString(s, normalize)
         )
         break

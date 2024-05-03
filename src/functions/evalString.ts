@@ -3,7 +3,7 @@ import { Pragma, Variable } from ".."
 export function evalString(str: string, pragma: Pragma): Variable {
   // console.log("PRAGMA: ", pragma)
 
-  console.log(str)
+  // console.log("eval: ", str)
   const variables = pragma.variables
   for (const key in variables) {
     const variable = variables[key]
@@ -11,10 +11,11 @@ export function evalString(str: string, pragma: Pragma): Variable {
     // console.log(reg)
     str = str.replace(reg, variable.toString())
   }
-  console.log(str)
+  console.log("eval: ", str)
 
   const res = eval(str)
 
-  console.log(res)
+  console.log("eval: ", res)
+
   return res
 }

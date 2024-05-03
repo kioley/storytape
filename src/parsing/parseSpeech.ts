@@ -1,3 +1,5 @@
+import { Pragma } from ".."
+import { evalString } from "../functions/evalString"
 import {
   extractCondition,
   clearID,
@@ -6,11 +8,18 @@ import {
   clearComment,
 } from "../utils/strings"
 
-export function parseSpeech(line: string): [string, string] {
+export function parseSpeech(
+  line: string,
+  pragma: Pragma
+): [string, string] | false {
   line = hideEscapingChars(line)
   line = clearComment(line)
   line = clearID(line)
   const [speech, condition] = extractCondition(line)
+
+  if (condition && !evalString(condition, pragma)) {
+    return false
+  }
 
   // const [name, text] = extractSpeech(speech)
   return extractSpeech(speech)

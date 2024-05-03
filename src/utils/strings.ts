@@ -21,11 +21,11 @@ export function clearComment(str: string): string {
   return str.split("//")[0]
 }
 
-export function extractCondition(str: string): [string, string] {
+export function extractCondition(str: string): [string, string | false] {
   const reg = str.match(/(<<if(.+)>>)\s*$/)
 
   if (!reg?.length) {
-    return [str, ""]
+    return [str, false]
   }
 
   str = str.replace(reg?.[1], "")
