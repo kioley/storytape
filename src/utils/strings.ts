@@ -13,11 +13,15 @@ export function normalizeString(str: string, normalize: boolean): string {
   return normalize ? str.trim().replace(/\s+/g, " ") : str
 }
 
-export function clearID(str: string): string {
+export function clearCommentAndId(str: string): string {
+  return clearId(clearComment(str))
+}
+
+function clearId(str: string): string {
   return str.split("#")[0]
 }
 
-export function clearComment(str: string): string {
+function clearComment(str: string): string {
   return str.split("//")[0]
 }
 

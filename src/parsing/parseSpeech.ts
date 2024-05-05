@@ -1,11 +1,10 @@
 import { Pragma } from ".."
 import { evalString } from "../functions/evalString"
 import {
+  clearCommentAndId,
   extractCondition,
-  clearID,
   hideEscapingChars,
   showEscapingChars,
-  clearComment,
 } from "../utils/strings"
 
 export function parseSpeech(
@@ -13,8 +12,7 @@ export function parseSpeech(
   pragma: Pragma
 ): [string, string] | false {
   line = hideEscapingChars(line)
-  line = clearComment(line)
-  line = clearID(line)
+  line = clearCommentAndId(line)
   const [speech, condition] = extractCondition(line)
 
   if (condition && !evalString(condition, pragma)) {

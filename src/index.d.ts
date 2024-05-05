@@ -1,13 +1,14 @@
 export interface Settings {
   ignoreTitleCase: boolean
   normalizeText: boolean
+  initialState: object
 }
 
 export interface Tape {
   variables: { [key: string]: Variable }
   type: "speech" | "options" | "end"
   speech: TapeSpeech
-  options: TapeOptions
+  options: TapeOption[]
 }
 
 export interface TapeSpeech {
@@ -15,7 +16,10 @@ export interface TapeSpeech {
   text: string
 }
 
-export type TapeOptions = string[]
+interface TapeOption {
+  text: string
+  available: boolean
+}
 
 export interface YarnSpinnerNode {
   title: string

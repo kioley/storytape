@@ -1,9 +1,10 @@
 import { Settings } from ".."
 
-export function createSettings(settings: Settings | void) {
+export function createSettings(settings: Partial<Settings> | undefined | null) {
   const _settings: Settings = {
     ignoreTitleCase: true,
     normalizeText: true,
+    initialState: {},
   }
 
   settings && Object.assign(_settings, settings)

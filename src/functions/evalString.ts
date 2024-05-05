@@ -11,11 +11,11 @@ export function evalString(str: string, pragma: Pragma): Variable {
     // console.log(reg)
     str = str.replace(reg, variable.toString())
   }
-  console.log("eval: ", str)
+  // console.log("eval: ", str)
 
   const res = eval(str)
 
-  console.log("eval: ", res)
+  // console.log("eval: ", res)
 
   return res
 }

@@ -1,6 +1,8 @@
 import { Pragma } from ".."
 
-export function createPragma(pragma: Partial<Pragma> | void): Pragma {
+export function createPragma(
+  pragma: Partial<Pragma> | undefined | null
+): Pragma {
   const _pragma: Pragma = {
     variables: {},
     functions: {},
