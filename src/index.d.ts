@@ -5,10 +5,12 @@ export interface Settings {
 }
 
 export interface Tape {
-  variables: { [key: string]: Variable }
   type: "speech" | "options" | "end"
   speech: TapeSpeech
   options: TapeOption[]
+  variables: { [key: string]: Variable }
+  node: string
+  line: number
 }
 
 export interface TapeSpeech {
@@ -33,3 +35,13 @@ export interface Pragma {
 }
 
 export type Variable = string | number | boolean
+
+export type lineType =
+  | "speech"
+  | "option"
+  | "if"
+  | "variable"
+  | "jump"
+  | "command"
+  | "empty"
+  | "comment"

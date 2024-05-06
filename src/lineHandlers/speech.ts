@@ -1,11 +1,11 @@
 import { Pragma } from ".."
-import { evalString } from "../functions/evalString"
+import { evalString } from "../utils/evalString"
 import {
   clearCommentAndId,
   extractCondition,
   hideEscapingChars,
   showEscapingChars,
-} from "../utils/strings"
+} from "../utils"
 
 export function parseSpeech(
   line: string,
@@ -19,7 +19,6 @@ export function parseSpeech(
     return false
   }
 
-  // const [name, text] = extractSpeech(speech)
   return extractSpeech(speech)
 }
 

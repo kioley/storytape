@@ -1,4 +1,4 @@
-import { YarnSpinnerNode } from ".."
+import { YarnSpinnerNode } from "."
 
 export function parseNodes(yarnRaw: string) {
   const nodes: YarnSpinnerNode[] = []
@@ -25,7 +25,9 @@ export function parseNodes(yarnRaw: string) {
 }
 
 function splitNode(nodeRaw: string): [headerRaw: string, bodyRaw: string] {
-  if (!/---\r?\n/.test(nodeRaw)) {
+  // console.log("nodeRaw: ", [nodeRaw])
+
+  if (!/\r?\n---\r?\n/.test(nodeRaw)) {
     throw new SyntaxError("One of the nodes has no delimiter")
   }
 
@@ -46,4 +48,19 @@ function parseTitle(header: string): string {
   }
 
   return title
+}
+
+export function getNode(
+  nodes: YarnSpinnerNode[],
+  title: string
+): YarnSpinnerNode {
+  const startNode = nodes.find(
+    (n) => n.title.toLowerCase() === title.toLowerCase()
+  )
+
+  if (!startNode) {
+    throw new Error("storytape: No start node is found")
+  }
+
+  return startNode
 }

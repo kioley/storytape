@@ -1,5 +1,5 @@
 import { Pragma, Variable } from ".."
-import { evalString } from "../functions/evalString"
+import { evalString } from "../utils/evalString"
 
 export function parseVariable(str: string, pragma: Pragma): [string, Variable] {
   const reg =
@@ -13,7 +13,6 @@ export function parseVariable(str: string, pragma: Pragma): [string, Variable] {
   const { name, assign, expression } = groups
 
   let value = expression
-  // console.log("sign:", assign)
   if (["to", "="].indexOf(assign) === -1) {
     value = "$" + name + assign[0] + "(" + expression + ")"
   }

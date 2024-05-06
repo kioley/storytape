@@ -1,10 +1,12 @@
-import { Pragma, Settings, Tape, YarnSpinnerNode } from "."
-import { createPragma } from "./functions/createPragma"
-import { createSettings } from "./functions/createSettings"
-import { parseNodes } from "./parsing/parseNodes"
-import { parseOptions, Option } from "./parsing/parseOptions"
-import { parseSpeech } from "./parsing/parseSpeech"
-import { parseVariable } from "./parsing/parseVariable"
+import { Pragma, Settings, Tape } from "."
+import { createPragma } from "./utils/createPragma"
+import { createSettings } from "./utils/createSettings"
+import {
+  findOptionIndex,
+  parseOptions,
+  skipOptions,
+} from "./lineHandlers/options"
+
 import {
   lineIsCommand,
   lineIsComment,
@@ -13,8 +15,11 @@ import {
   lineIsJump,
   lineIsOption,
   lineIsVariable,
-} from "./utils"
-import { normalizeString } from "./utils/strings"
+} from "./utils/checkLineType"
+import { countIndents, normalizeString } from "./utils"
+import { getNode, parseNodes } from "./nodes"
+import { parseVariable } from "./lineHandlers/variable"
+import { parseSpeech } from "./lineHandlers/speech"
 
 export function createTape(
   yarnSpinnerScriptString: string,
@@ -26,33 +31,33 @@ export function createTape(
   const normalize = _settings.normalizeText
 
   const nodes = parseNodes(yarnSpinnerScriptString)
-  let strings = getNode(nodes, "start").body
-  let currentOptions: Option[]
-
-  let index = -1
+  const startNode = getNode(nodes, "start")
+  const lines = startNode.body
 
   let state: Tape = {
-    variables: _pragma.variables,
     type: "speech",
     speech: {
       name: "",
       text: "",
     },
     options: [],
+    variables: _pragma.variables,
+    node: startNode.title,
+    line: 0,
   }
   state = Object.assign(_settings.initialState, state)
 
   function next(option?: string | number): void {
     if (state.type === "options") {
-      const [start1, end1, start2] = getOptionIndexes(option, currentOptions)
-      strings = strings.slice(start1, end1).concat(strings.slice(start2))
-      index = -1
+      state.line = findOptionIndex(option, state.options, lines, state.line)
+      state.options = []
     }
 
     let line: string
 
-    while (++index < strings.length) {
-      line = strings[index]
+    while (++state.line < lines.length) {
+      line = lines[state.line]
+      // console.log(lines)
       if (lineIsEmpty(line) || lineIsComment(line)) continue
 
       if (lineIsIfBlockStart(line)) {
@@ -65,16 +70,13 @@ export function createTape(
       } else if (lineIsCommand(line)) {
         continue
       } else if (lineIsOption(line)) {
+        const indents = countIndents(line)
+        if (indents < countIndents(lines[state.line - 1])) {
+          state.line = skipOptions(lines, state.line + 1, indents)
+          continue
+        }
         state.type = "options"
-        currentOptions = parseOptions(strings, index, _pragma)
-        currentOptions.forEach((option) =>
-          state.options.push({
-            text: normalizeString(option.text, _settings.normalizeText),
-            available: option.available,
-          })
-        )
-        // console.log("🚀 ~ next ~ currentOptions:", currentOptions)
-        // console.log("🚀 ~ next ~ options:", state.options)
+        state.options = parseOptions(lines, state.line, _pragma)
         break
       } else {
         const speech = parseSpeech(line, _pragma)
@@ -86,53 +88,10 @@ export function createTape(
         break
       }
     }
-    if (index === strings.length) {
+    if (state.line >= lines.length) {
       state.type = "end"
     }
   }
-
+  next()
   return [state, next]
-}
-
-function getNode(nodes: YarnSpinnerNode[], title: string): YarnSpinnerNode {
-  const startNode = nodes.find(
-    (n) => n.title.toLowerCase() === title.toLowerCase()
-  )
-
-  if (!startNode) {
-    throw new Error("storytape: No start node is found")
-  }
-
-  return startNode
-}
-
-function getOptionIndexes(
-  option: string | number | undefined,
-  options: Option[]
-): [number, number, number] {
-  if (!option) {
-    throw new Error('storytape: The option is not passed to the "next" method')
-  }
-
-  let currentOption: Option | undefined
-  switch (typeof option) {
-    case "string":
-      currentOption = options.find((o) => o.text === option)
-      break
-    case "number":
-      currentOption = options[option]
-      break
-    default:
-      throw new Error(`storytape: The wrong option "${option}"`)
-  }
-
-  if (!currentOption) {
-    throw new Error(`storytape: The wrong option "${option}"`)
-  }
-
-  return [
-    currentOption.start,
-    currentOption.end,
-    options[options.length - 1].end,
-  ]
 }

@@ -1,31 +1,61 @@
+const escapingChars = {
+  "\\": "L34KLFdfg3",
+  "#": "jt5437teWY",
+  "/": "kdf8438hjf",
+  "[": "asLS8345KL",
+  "]": "fsdkgDf768",
+  ">": "dK48fkK20G",
+  "<": "F7gi8f3Jk0",
+  ":": "Af0AS9f0sQ",
+}
+
+export function hideEscapingChars(str: string) {
+  for (const [k, v] of Object.entries(escapingChars)) {
+    str = str.replaceAll("\\" + k, v)
+    if (k === ":") {
+      str = str.replaceAll("/" + k, v)
+    }
+  }
+  return str
+}
+
+export function showEscapingChars(str: string) {
+  for (const [k, v] of Object.entries(escapingChars)) {
+    str = str.replaceAll(v, k)
+  }
+  return str
+}
+
 export function countIndents(str: string) {
   return str.match(/^\s+/)?.[0].length || 0
 }
 
-export function lineIsEmpty(str: string) {
-  return !str.trim()
+export function normalizeString(str: string, normalize: boolean): string {
+  return normalize ? str.trim().replace(/\s+/g, " ") : str
 }
 
-export function lineIsComment(str: string) {
-  return /^\s*\/\//.test(str)
+export function clearCommentAndId(str: string): string {
+  return clearId(clearComment(str))
 }
 
-export function lineIsOption(str: string) {
-  return /^\s*->/.test(str)
+function clearId(str: string): string {
+  return str.split("#")[0]
 }
 
-export function lineIsIfBlockStart(str: string) {
-  return /^\s*<<if/.test(str)
+function clearComment(str: string): string {
+  return str.split("//")[0]
 }
 
-export function lineIsVariable(str: string) {
-  return /^\s*<<(declare|set)/.test(str)
-}
+export function extractCondition(str: string): [string, string | false] {
+  const reg = str.match(/(<<if(.+)>>)\s*$/)
 
-export function lineIsJump(str: string) {
-  return /^\s*<<jump/.test(str)
-}
+  if (!reg?.length) {
+    return [str, false]
+  }
 
-export function lineIsCommand(str: string) {
-  return /^\s*<</.test(str)
+  str = str.replace(reg?.[1], "")
+
+  const condition = reg?.[2]
+
+  return [str, condition]
 }
