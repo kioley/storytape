@@ -10,6 +10,8 @@ import {
 import {
   lineIsCommand,
   lineIsComment,
+  lineIsElse,
+  lineIsElseIf,
   lineIsEmpty,
   lineIsIfBlockStart,
   lineIsJump,
@@ -20,6 +22,7 @@ import { countIndents, normalizeString } from "./utils"
 import { getNode, parseNodes } from "./nodes"
 import { parseVariable } from "./lineHandlers/variable"
 import { parseSpeech } from "./lineHandlers/speech"
+import { getEndifIndex, handleIf } from "./lineHandlers/ifBlock"
 
 export function createTape(
   yarnSpinnerScriptString: string,
@@ -31,10 +34,10 @@ export function createTape(
   const normalize = _settings.normalizeText
 
   const nodes = parseNodes(yarnSpinnerScriptString)
-  const startNode = getNode(nodes, "start")
+  const startNode = getNode(nodes, _settings.startNode)
   const lines = startNode.body
 
-  let state: Tape = {
+  const state: Tape = {
     type: "speech",
     speech: {
       name: "",
@@ -45,7 +48,6 @@ export function createTape(
     node: startNode.title,
     line: 0,
   }
-  state = Object.assign(_settings.initialState, state)
 
   function next(option?: string | number): void {
     if (state.type === "options") {
@@ -57,10 +59,15 @@ export function createTape(
 
     while (++state.line < lines.length) {
       line = lines[state.line]
-      // console.log(lines)
+
       if (lineIsEmpty(line) || lineIsComment(line)) continue
 
+      if (lineIsElseIf(line) || lineIsElse(line)) {
+        state.line = getEndifIndex(lines, state.line)
+      }
+
       if (lineIsIfBlockStart(line)) {
+        state.line = handleIf(lines, state.line, _pragma)
         continue
       } else if (lineIsVariable(line)) {
         const [name, value] = parseVariable(line, _pragma)

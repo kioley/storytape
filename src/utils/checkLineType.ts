@@ -10,18 +10,30 @@ export function lineIsOption(str: string) {
   return /^\s*->/.test(str)
 }
 
-export function lineIsIfBlockStart(str: string) {
-  return /^\s*<<if/.test(str)
-}
-
 export function lineIsVariable(str: string) {
-  return /^\s*<<(declare|set)/.test(str)
+  return /^\s*<<\s*(declare|set)/.test(str)
 }
 
 export function lineIsJump(str: string) {
-  return /^\s*<<jump/.test(str)
+  return /^\s*<<\s*jump/.test(str)
 }
 
 export function lineIsCommand(str: string) {
   return /^\s*<</.test(str)
+}
+
+export function lineIsIfBlockStart(str: string) {
+  return /^\s*<<\s*if/.test(str)
+}
+
+export function lineIsElseIf(str: string) {
+  return /^\s*<<\s*elseif/.test(str)
+}
+
+export function lineIsElse(str: string) {
+  return /^\s*<<\s*else/.test(str)
+}
+
+export function lineIsEndif(str: string) {
+  return /^\s*<<\s*endif\s*>>/.test(str)
 }

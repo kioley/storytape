@@ -1,3 +1,6 @@
+import { Pragma } from ".."
+import { evalString } from "./evalString"
+
 const escapingChars = {
   "\\": "L34KLFdfg3",
   "#": "jt5437teWY",
@@ -46,16 +49,25 @@ function clearComment(str: string): string {
   return str.split("//")[0]
 }
 
-export function extractCondition(str: string): [string, string | false] {
-  const reg = str.match(/(<<if(.+)>>)\s*$/)
+export function extractInlineCondition(str: string): [string, string | false] {
+  const matches = str.match(/<<\s*if(.+)>>/)
 
-  if (!reg?.length) {
+  if (!matches?.length) {
     return [str, false]
   }
 
-  str = str.replace(reg?.[1], "")
+  str = str.replace(matches?.[0], "")
 
-  const condition = reg?.[2]
+  const condition = matches?.[1]
 
   return [str, condition]
+}
+
+export function checkCondition(str: string, pragma: Pragma): boolean {
+  const condition = str.match(/<<\s*(else\s*)?if(.+)>>/)?.[2]
+  if (!condition) {
+    throw new Error(`storytape: The condition cannot be resolved "${str}"`)
+  }
+
+  return !!evalString(condition, pragma)
 }

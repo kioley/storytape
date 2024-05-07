@@ -1,6 +1,10 @@
 import { Pragma, TapeOption } from ".."
 import { evalString } from "../utils/evalString"
-import { clearCommentAndId, extractCondition, countIndents } from "../utils"
+import {
+  clearCommentAndId,
+  extractInlineCondition,
+  countIndents,
+} from "../utils"
 import { lineIsOption } from "../utils/checkLineType"
 
 export function parseOptions(
@@ -15,14 +19,11 @@ export function parseOptions(
   let line: string
   for (let i = start; i < lines.length; i++) {
     line = lines[i]
-    // console.log("🚀 ~ str:", str)
     if (countIndents(line) < indents) break
     if (!lineIsOption(line) || countIndents(line) !== indents) continue
-    // const option = parseOption(strings, i, indents, pragma)
-    // if (!option) continue
     line = clearCommentAndId(line)
     line = extractOptionText(line)
-    const [text, condition] = extractCondition(line)
+    const [text, condition] = extractInlineCondition(line)
 
     const option: TapeOption = {
       text: text,

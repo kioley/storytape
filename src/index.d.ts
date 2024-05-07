@@ -1,7 +1,7 @@
 export interface Settings {
+  startNode: string
   ignoreTitleCase: boolean
   normalizeText: boolean
-  initialState: object
 }
 
 export interface Tape {

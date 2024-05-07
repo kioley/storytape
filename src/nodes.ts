@@ -25,8 +25,6 @@ export function parseNodes(yarnRaw: string) {
 }
 
 function splitNode(nodeRaw: string): [headerRaw: string, bodyRaw: string] {
-  // console.log("nodeRaw: ", [nodeRaw])
-
   if (!/\r?\n---\r?\n/.test(nodeRaw)) {
     throw new SyntaxError("One of the nodes has no delimiter")
   }
@@ -54,12 +52,10 @@ export function getNode(
   nodes: YarnSpinnerNode[],
   title: string
 ): YarnSpinnerNode {
-  const startNode = nodes.find(
-    (n) => n.title.toLowerCase() === title.toLowerCase()
-  )
+  const startNode = nodes.find((n) => n.title === title)
 
   if (!startNode) {
-    throw new Error("storytape: No start node is found")
+    throw new Error(`storytape: No "${title}" node is found`)
   }
 
   return startNode
