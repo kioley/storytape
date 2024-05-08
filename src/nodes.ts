@@ -55,7 +55,7 @@ export function getNode(
   const startNode = nodes.find((n) => n.title === title)
 
   if (!startNode) {
-    throw new Error(`storytape: No "${title}" node is found`)
+    throw new Error(`[storytape] No "${title}" node is found`)
   }
 
   return startNode

@@ -44,6 +44,6 @@ export function getEndifIndex(lines: string[], start: number): number {
     }
   }
   throw new Error(
-    `storytape: The "<<endif>>" operator was not found "${lines[start]}"`
+    `[storytape] The "<<endif>>" operator was not found "${lines[start]}"`
   )
 }

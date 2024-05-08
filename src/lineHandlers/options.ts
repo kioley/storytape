@@ -1,5 +1,5 @@
 import { Pragma, TapeOption } from ".."
-import { evalString } from "../utils/evalString"
+import { evalExpression } from "../utils/evalString"
 import {
   clearCommentAndId,
   extractInlineCondition,
@@ -30,7 +30,7 @@ export function parseOptions(
       available: true,
     }
 
-    if (condition && !evalString(condition, pragma)) {
+    if (condition && !evalExpression(condition, pragma)) {
       option.available = false
     }
 
@@ -63,7 +63,7 @@ export function findOptionIndex(
   index: number
 ): number {
   if (option == null) {
-    throw new Error('storytape: The option is not passed to the "next" method')
+    throw new Error('[storytape] The option is not passed to the "next" method')
   }
 
   let optionText: string | undefined
@@ -75,11 +75,11 @@ export function findOptionIndex(
       optionText = options[option].text
       break
     default:
-      throw new Error(`storytape: The wrong option "${option}"`)
+      throw new Error(`[storytape] The wrong option "${option}"`)
   }
 
   if (!optionText) {
-    throw new Error(`storytape: The wrong option "${option}"`)
+    throw new Error(`[storytape] The wrong option "${option}"`)
   }
 
   const indents = countIndents(lines[index])
@@ -96,7 +96,7 @@ export function findOptionIndex(
   }
 
   if (!optionIndex) {
-    throw new Error(`storytape: The option is not found "${option}"`)
+    throw new Error(`[storytape] The option is not found "${option}"`)
   }
 
   return optionIndex

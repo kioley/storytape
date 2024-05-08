@@ -1,5 +1,5 @@
 import { Pragma } from ".."
-import { evalString } from "./evalString"
+import { evalExpression } from "./evalString"
 
 const escapingChars = {
   "\\": "L34KLFdfg3",
@@ -66,8 +66,8 @@ export function extractInlineCondition(str: string): [string, string | false] {
 export function checkCondition(str: string, pragma: Pragma): boolean {
   const condition = str.match(/<<\s*(else\s*)?if(.+)>>/)?.[2]
   if (!condition) {
-    throw new Error(`storytape: The condition cannot be resolved "${str}"`)
+    throw new Error(`[storytape] The condition cannot be resolved "${str}"`)
   }
 
-  return !!evalString(condition, pragma)
+  return !!evalExpression(condition, pragma)
 }

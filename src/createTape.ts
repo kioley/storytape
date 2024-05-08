@@ -25,15 +25,15 @@ import { parseSpeech } from "./lineHandlers/speech"
 import { getEndifIndex, handleIf } from "./lineHandlers/ifBlock"
 
 export function createTape(
-  yarnSpinnerScriptString: string,
+  story: string,
   pragma?: Partial<Pragma> | null,
-  settings?: Partial<Settings>
+  settings?: Partial<Settings> | null
 ): [Tape, (option?: number | string) => void] {
   const _pragma = createPragma(pragma)
   const _settings = createSettings(settings)
   const normalize = _settings.normalizeText
 
-  const nodes = parseNodes(yarnSpinnerScriptString)
+  const nodes = parseNodes(story)
   const startNode = getNode(nodes, _settings.startNode)
   const lines = startNode.body
 

@@ -1,5 +1,5 @@
 import { Pragma } from ".."
-import { evalString } from "../utils/evalString"
+import { evalExpression } from "../utils/evalString"
 import {
   clearCommentAndId,
   extractInlineCondition,
@@ -15,7 +15,7 @@ export function parseSpeech(
   line = clearCommentAndId(line)
   const [speech, condition] = extractInlineCondition(line)
 
-  if (condition && !evalString(condition, pragma)) {
+  if (condition && !evalExpression(condition, pragma)) {
     return false
   }
 

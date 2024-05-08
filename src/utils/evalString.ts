@@ -1,14 +1,63 @@
 import { Pragma, Variable } from ".."
 
-export function evalString(str: string, pragma: Pragma): Variable {
-  const variables = pragma.variables
+export function evalExpression(expression: string, pragma: Pragma): Variable {
+  let result = expression
+  result = replaceVariables(result, pragma.variables)
+  result = replaceEntries(result, synonyms)
+
+  try {
+    checkForbidden(result)
+    return eval(result)
+  } catch (error) {
+    const err = error as Error
+
+    throw new Error(`[storytape] ${err.message} in expression "${expression}"`)
+  }
+}
+
+function checkForbidden(expression: string): void {
+  for (const substr of expression.split(/true|false/)) {
+    const word = substr.match(/[A-Za-z]+/)?.[0]
+    if (word) {
+      throw new Error(`Unexpected token "${word}"`)
+    }
+  }
+}
+
+function replaceVariables(
+  expression: string,
+  variables: { [key: string]: Variable }
+): string {
   for (const key in variables) {
     const variable = variables[key]
-    const reg = new RegExp(`\\$${key}`, "g")
-    str = str.replace(reg, variable.toString())
+    const reg = new RegExp(`\\$${key}\\b`, "g")
+    expression = expression.replace(reg, variable.toString())
   }
+  return expression
+}
 
-  const res = eval(str)
+function replaceEntries(
+  expression: string,
+  variables: { [key: string]: Variable }
+): string {
+  for (const key in variables) {
+    const variable = variables[key]
+    expression = expression.replace(key, variable.toString())
+  }
+  return expression
+}
 
-  return res
+const synonyms = {
+  "==": "===",
+  "!=": "!==",
+  neq: "!==",
+  eq: "===",
+  is: "===",
+  gte: ">=",
+  lte: "<=",
+  gt: ">",
+  lt: "<",
+  or: "||",
+  not: "!",
+  and: "&&",
 }
