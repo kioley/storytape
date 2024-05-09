@@ -1,4 +1,4 @@
-import { Pragma } from ".."
+import { Settings } from ".."
 import { checkCondition } from "../utils"
 import {
   lineIsElse,
@@ -10,9 +10,9 @@ import {
 export function handleIf(
   lines: string[],
   start: number,
-  pragma: Pragma
+  variables: Settings["variables"]
 ): number {
-  if (checkCondition(lines[start], pragma)) {
+  if (checkCondition(lines[start], variables)) {
     return start
   }
   const endifIndex = getEndifIndex(lines, start + 1)
@@ -25,7 +25,7 @@ export function handleIf(
     if (lineIsElse(line)) {
       return i
     }
-    if (lineIsElseIf(line) && checkCondition(lines[i], pragma)) {
+    if (lineIsElseIf(line) && checkCondition(lines[i], variables)) {
       return i
     }
   }

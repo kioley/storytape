@@ -10,12 +10,14 @@ export function parseNodes(yarnRaw: string) {
 
     const node: YarnSpinnerNode = {
       title: "",
+      tags: [],
       body: [],
     }
 
     const [header, body] = splitNode(nodeRaw)
 
     node.title = parseTitle(header)
+    node.tags = parseTags(header)
     node.body = body.split("\n")
 
     nodes.push(node)
@@ -48,15 +50,28 @@ function parseTitle(header: string): string {
   return title
 }
 
+function parseTags(header: string): string[] {
+  const tags = header
+    .match(/tags\s*:\s*(.*)\s*(\n|$)/i)?.[1]
+    ?.split(/\s+/)
+    ?.filter((tag) => !!tag)
+
+  if (!tags) {
+    return []
+  }
+
+  return tags
+}
+
 export function getNode(
   nodes: YarnSpinnerNode[],
   title: string
 ): YarnSpinnerNode {
-  const startNode = nodes.find((n) => n.title === title)
+  const node = nodes.find((n) => n.title === title)
 
-  if (!startNode) {
+  if (!node) {
     throw new Error(`[storytape] No "${title}" node is found`)
   }
 
-  return startNode
+  return node
 }

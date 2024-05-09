@@ -1,7 +1,10 @@
-import { Pragma, Variable } from ".."
+import { Settings, Variable } from ".."
 import { evalExpression } from "../utils/evalString"
 
-export function parseVariable(str: string, pragma: Pragma): [string, Variable] {
+export function parseVariable(
+  str: string,
+  variables: Settings["variables"]
+): [string, Variable] {
   const reg =
     /<<(declare|set)\s+\$(?<name>\w+)\s+(?<assign>([-+*/%]?=)|to)\s+(?<expression>.*)>>/
   const groups = str.match(reg)?.groups
@@ -17,7 +20,7 @@ export function parseVariable(str: string, pragma: Pragma): [string, Variable] {
     value = "$" + name + assign[0] + "(" + expression + ")"
   }
 
-  const result = evalExpression(value, pragma)
+  const result = evalExpression(value, variables)
 
   return [name, result]
 }

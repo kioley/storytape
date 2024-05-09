@@ -2,15 +2,29 @@ export interface Settings {
   startNode: string
   ignoreTitleCase: boolean
   normalizeText: boolean
+  variables: Variables
+  functions: { [key: string]: (...args: string[]) => Variable }
+  methods: { [key: string]: (...args: string[]) => void }
 }
 
 export interface Tape {
-  type: "speech" | "options" | "end"
-  speech: TapeSpeech
-  options: TapeOption[]
-  variables: { [key: string]: Variable }
-  node: string
-  line: number
+  dialogue: {
+    type: "speech" | "options" | "end"
+    speech: TapeSpeech
+    options: TapeOption[]
+  }
+  variables: Variables
+  node: {
+    title: string
+    tags: string[]
+    line: number
+  }
+}
+
+export type Variable = string | number | boolean
+
+export interface Variables {
+  [key: string]: Variable
 }
 
 export interface TapeSpeech {
@@ -25,16 +39,9 @@ interface TapeOption {
 
 export interface YarnSpinnerNode {
   title: string
+  tags: string[]
   body: string[]
 }
-
-export interface Pragma {
-  variables: { [key: string]: Variable }
-  functions: { [key: string]: (...args: string[]) => Variable }
-  methods: { [key: string]: (...args: string[]) => void }
-}
-
-export type Variable = string | number | boolean
 
 export type lineType =
   | "speech"

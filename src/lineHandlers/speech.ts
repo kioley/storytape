@@ -1,4 +1,4 @@
-import { Pragma } from ".."
+import { Settings } from ".."
 import { evalExpression } from "../utils/evalString"
 import {
   clearCommentAndId,
@@ -9,13 +9,13 @@ import {
 
 export function parseSpeech(
   line: string,
-  pragma: Pragma
+  variables: Settings["variables"]
 ): [string, string] | false {
   line = hideEscapingChars(line)
   line = clearCommentAndId(line)
   const [speech, condition] = extractInlineCondition(line)
 
-  if (condition && !evalExpression(condition, pragma)) {
+  if (condition && !evalExpression(condition, variables)) {
     return false
   }
 

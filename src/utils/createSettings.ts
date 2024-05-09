@@ -5,6 +5,9 @@ export function createSettings(settings: Partial<Settings> | undefined | null) {
     startNode: "Start",
     ignoreTitleCase: true,
     normalizeText: true,
+    variables: {},
+    functions: {},
+    methods: {},
   }
 
   settings && Object.assign(_settings, settings)

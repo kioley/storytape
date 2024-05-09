@@ -1,4 +1,4 @@
-import { Pragma } from ".."
+import { Settings } from ".."
 import { evalExpression } from "./evalString"
 
 const escapingChars = {
@@ -63,11 +63,14 @@ export function extractInlineCondition(str: string): [string, string | false] {
   return [str, condition]
 }
 
-export function checkCondition(str: string, pragma: Pragma): boolean {
+export function checkCondition(
+  str: string,
+  variables: Settings["variables"]
+): boolean {
   const condition = str.match(/<<\s*(else\s*)?if(.+)>>/)?.[2]
   if (!condition) {
     throw new Error(`[storytape] The condition cannot be resolved "${str}"`)
   }
 
-  return !!evalExpression(condition, pragma)
+  return !!evalExpression(condition, variables)
 }

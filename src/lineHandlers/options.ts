@@ -1,4 +1,4 @@
-import { Pragma, TapeOption } from ".."
+import { Settings, TapeOption } from ".."
 import { evalExpression } from "../utils/evalString"
 import {
   clearCommentAndId,
@@ -10,7 +10,7 @@ import { lineIsOption } from "../utils/checkLineType"
 export function parseOptions(
   lines: string[],
   start: number,
-  pragma: Pragma
+  variables: Settings["variables"]
 ): TapeOption[] {
   const options = []
 
@@ -30,7 +30,7 @@ export function parseOptions(
       available: true,
     }
 
-    if (condition && !evalExpression(condition, pragma)) {
+    if (condition && !evalExpression(condition, variables)) {
       option.available = false
     }
 

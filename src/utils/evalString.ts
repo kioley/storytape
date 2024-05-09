@@ -1,8 +1,11 @@
-import { Pragma, Variable } from ".."
+import { Settings, Variable, Variables } from ".."
 
-export function evalExpression(expression: string, pragma: Pragma): Variable {
+export function evalExpression(
+  expression: string,
+  variables: Settings["variables"]
+): Variable {
   let result = expression
-  result = replaceVariables(result, pragma.variables)
+  result = replaceVariables(result, variables)
   result = replaceEntries(result, synonyms)
 
   try {
@@ -26,7 +29,7 @@ function checkForbidden(expression: string): void {
 
 function replaceVariables(
   expression: string,
-  variables: { [key: string]: Variable }
+  variables: Settings["variables"]
 ): string {
   for (const key in variables) {
     const variable = variables[key]
@@ -36,10 +39,7 @@ function replaceVariables(
   return expression
 }
 
-function replaceEntries(
-  expression: string,
-  variables: { [key: string]: Variable }
-): string {
+function replaceEntries(expression: string, variables: Variables): string {
   for (const key in variables) {
     const variable = variables[key]
     expression = expression.replace(key, variable.toString())
