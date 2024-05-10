@@ -5,11 +5,17 @@ export function evalExpression(
   variables: Settings["variables"]
 ): Variable {
   let result = expression
+  try {
+    checkForbidden(result)
+  } catch (error) {
+    const err = error as Error
+
+    throw new Error(`[storytape] ${err.message} in expression "${expression}"`)
+  }
   result = replaceVariables(result, variables)
   result = replaceEntries(result, synonyms)
 
   try {
-    checkForbidden(result)
     return eval(result)
   } catch (error) {
     const err = error as Error
@@ -19,11 +25,12 @@ export function evalExpression(
 }
 
 function checkForbidden(expression: string): void {
-  for (const substr of expression.split(/true|false/)) {
-    const word = substr.match(/[A-Za-z]+/)?.[0]
-    if (word) {
-      throw new Error(`Unexpected token "${word}"`)
-    }
+  expression = expression.replaceAll('\\"', "")
+  expression = expression.replaceAll(/true|false|"[^"]*"/g, "")
+
+  const word = expression.match(/[A-Za-z]+/)?.[0]
+  if (word) {
+    throw new Error(`Unexpected token "${word}"`)
   }
 }
 
@@ -31,11 +38,20 @@ function replaceVariables(
   expression: string,
   variables: Settings["variables"]
 ): string {
+  console.log("🚀 ~ checkForbidden ~ expression:", [expression])
   for (const key in variables) {
-    const variable = variables[key]
+    let variable = variables[key]
     const reg = new RegExp(`\\$${key}\\b`, "g")
-    expression = expression.replace(reg, variable.toString())
+
+    if (typeof variable === "string") {
+      variable = '"' + variable + '"'
+    } else {
+      variable = variable.toString()
+    }
+
+    expression = expression.replace(reg, variable)
   }
+  console.log("🚀 ~ checkForbidden ~ expression:", [expression])
   return expression
 }
 

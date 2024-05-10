@@ -1,17 +1,14 @@
-import { Settings, TapeOption } from ".."
-import { evalExpression } from "../utils/evalString"
-import {
-  clearCommentAndId,
-  extractInlineCondition,
-  countIndents,
-} from "../utils"
+import { Settings, Speech } from ".."
+import { countIndents } from "../utils"
 import { lineIsOption } from "../utils/checkLineType"
+import { parseSpeech } from "./speech"
 
 export function parseOptions(
   lines: string[],
   start: number,
-  variables: Settings["variables"]
-): TapeOption[] {
+  variables: Settings["variables"],
+  normalize: boolean
+): Speech[] {
   const options = []
 
   const indents = countIndents(lines[start])
@@ -21,28 +18,18 @@ export function parseOptions(
     line = lines[i]
     if (countIndents(line) < indents) break
     if (!lineIsOption(line) || countIndents(line) !== indents) continue
-    line = clearCommentAndId(line)
-    line = extractOptionText(line)
-    const [text, condition] = extractInlineCondition(line)
+    line = clearOption(line)
+    const speech = parseSpeech(line, variables, normalize)
 
-    const option: TapeOption = {
-      text: text,
-      available: true,
-    }
-
-    if (condition && !evalExpression(condition, variables)) {
-      option.available = false
-    }
-
-    options.push(option)
+    options.push(speech)
   }
 
   return options
 }
 
-function extractOptionText(option: string): string {
+function clearOption(line: string): string {
   const prefixLength = 2
-  const text = option.trim().substring(prefixLength)
+  const text = line.trim().substring(prefixLength)
   return text
 }
 
@@ -58,7 +45,7 @@ export function skipOptions(lines: string[], start: number, indents: number) {
 
 export function findOptionIndex(
   option: string | number | undefined,
-  options: TapeOption[],
+  options: Speech[],
   lines: string[],
   index: number
 ): number {

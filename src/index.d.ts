@@ -10,8 +10,8 @@ export interface Settings {
 export interface Tape {
   dialogue: {
     type: "speech" | "options" | "end"
-    speech: TapeSpeech
-    options: TapeOption[]
+    speech: Speech
+    options: Speech[]
   }
   variables: Variables
   node: {
@@ -27,14 +27,11 @@ export interface Variables {
   [key: string]: Variable
 }
 
-export interface TapeSpeech {
+export interface Speech {
   name: string
   text: string
-}
-
-interface TapeOption {
-  text: string
   available: boolean
+  tags: string[]
 }
 
 export interface YarnSpinnerNode {

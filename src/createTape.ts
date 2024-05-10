@@ -17,7 +17,7 @@ import {
   lineIsOption,
   lineIsVariable,
 } from "./utils/checkLineType"
-import { countIndents, normalizeString } from "./utils"
+import { countIndents } from "./utils"
 import { getNode, parseNodes } from "./nodes"
 import { parseVariable } from "./lineHandlers/variable"
 import { parseSpeech } from "./lineHandlers/speech"
@@ -27,7 +27,6 @@ export function createTape(
   story: string,
   settings?: Partial<Settings> | null
 ): [Tape, (option?: number | string) => void] {
-  // const state.variables = createSettings(Settings)
   const _settings = createSettings(settings)
   const normalize = _settings.normalizeText
 
@@ -97,16 +96,13 @@ export function createTape(
         state.dialogue.options = parseOptions(
           lines,
           state.node.line,
-          state.variables
+          state.variables,
+          normalize
         )
         break
       } else {
-        const speech = parseSpeech(line, state.variables)
-        if (!speech) continue
         state.dialogue.type = "speech"
-        ;[state.dialogue.speech.name, state.dialogue.speech.text] = speech.map(
-          (s) => normalizeString(s, normalize)
-        )
+        state.dialogue.speech = parseSpeech(line, state.variables, normalize)
         break
       }
     }
@@ -130,6 +126,8 @@ function createInitialState(
       speech: {
         name: "",
         text: "",
+        available: true,
+        tags: [],
       },
       options: [],
     },

@@ -1,28 +1,40 @@
-import { Settings } from ".."
+import { Speech, Settings } from ".."
 import { evalExpression } from "../utils/evalString"
 import {
-  clearCommentAndId,
+  clearComment,
   extractInlineCondition,
+  extractLineTags,
   hideEscapingChars,
+  normalizeString,
   showEscapingChars,
 } from "../utils"
 
 export function parseSpeech(
   line: string,
-  variables: Settings["variables"]
-): [string, string] | false {
+  variables: Settings["variables"],
+  normalize: boolean
+): Speech {
+  const speech: Speech = {
+    text: "",
+    name: "",
+    available: true,
+    tags: [],
+  }
+  line = clearComment(line)
+  ;[line, speech.tags] = extractLineTags(line)
   line = hideEscapingChars(line)
-  line = clearCommentAndId(line)
-  const [speech, condition] = extractInlineCondition(line)
+  let condition: string | false
+  ;[line, condition] = extractInlineCondition(line)
 
   if (condition && !evalExpression(condition, variables)) {
-    return false
+    speech.available = false
   }
 
-  return extractSpeech(speech)
+  ;[speech.name, speech.text] = extractSpeech(line, normalize)
+  return speech
 }
 
-function extractSpeech(speech: string): [string, string] {
+function extractSpeech(speech: string, normalize: boolean): [string, string] {
   speech = speech.trim()
   let name = ""
   let text = speech
@@ -36,6 +48,10 @@ function extractSpeech(speech: string): [string, string] {
   if (text.startsWith(" ")) text = text.substring(1)
   name = showEscapingChars(name)
   text = showEscapingChars(text)
+  if (normalize) {
+    name = normalizeString(name)
+    text = normalizeString(text)
+  }
 
   return [name, text]
 }

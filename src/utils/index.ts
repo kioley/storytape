@@ -33,20 +33,21 @@ export function countIndents(str: string) {
   return str.match(/^\s+/)?.[0].length || 0
 }
 
-export function normalizeString(str: string, normalize: boolean): string {
-  return normalize ? str.trim().replace(/\s+/g, " ") : str
+export function normalizeString(str: string): string {
+  return str.trim().replace(/\s+/g, " ")
 }
 
-export function clearCommentAndId(str: string): string {
-  return clearId(clearComment(str))
+export function extractLineTags(str: string): [string, string[]] {
+  const [line, ...tags] = str
+    .split(" #")
+    .map((tag) => tag.trim())
+    .filter((tag) => !!tag)
+
+  return [line, tags]
 }
 
-function clearId(str: string): string {
-  return str.split("#")[0]
-}
-
-function clearComment(str: string): string {
-  return str.split("//")[0]
+export function clearComment(str: string): string {
+  return str.split(" //")[0]
 }
 
 export function extractInlineCondition(str: string): [string, string | false] {

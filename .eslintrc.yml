@@ -26,3 +26,5 @@ rules:
   semi:
     - error
     - never
+    - beforeStatementContinuationChars: "never"
+  no-extra-semi: "off"
