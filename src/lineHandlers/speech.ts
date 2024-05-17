@@ -1,5 +1,5 @@
 import { Speech, Settings } from ".."
-import { evalExpression } from "../utils/evalString"
+import { evalExpression } from "../utils/evalExpression"
 import {
   clearComment,
   extractInlineCondition,

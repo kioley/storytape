@@ -1,11 +1,12 @@
 import { Settings } from ".."
-import { checkCondition } from "../utils"
+import { StorytapeError } from "../utils"
 import {
   lineIsElse,
   lineIsElseIf,
   lineIsEndif,
   lineIsIfBlockStart,
 } from "../utils/checkLineType"
+import { evalExpression } from "../utils/evalExpression"
 
 export function handleIf(
   lines: string[],
@@ -43,7 +44,21 @@ export function getEndifIndex(lines: string[], start: number): number {
       return i
     }
   }
-  throw new Error(
-    `[storytape] The "<<endif>>" operator was not found "${lines[start]}"`
+  throw new StorytapeError(
+    `The "<<endif>>" operator was not found "${lines[start]}"`
   )
+}
+
+function checkCondition(
+  str: string,
+  variables: Settings["variables"]
+): boolean {
+  const condition = str.match(/<<\s*(else\s*)?if(.+)>>/)?.[2]
+  if (!condition) {
+    throw new StorytapeError(
+      `[storytape] The condition cannot be resolved "${str}"`
+    )
+  }
+
+  return !!evalExpression(condition, variables)
 }

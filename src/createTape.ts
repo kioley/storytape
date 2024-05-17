@@ -17,45 +17,45 @@ import {
   lineIsOption,
   lineIsVariable,
 } from "./utils/checkLineType"
-import { countIndents } from "./utils"
-import { getNode, parseNodes } from "./nodes"
+import { StorytapeError, countIndents } from "./utils"
+import { findNode, parseNodes } from "./nodes"
 import { parseVariable } from "./lineHandlers/variable"
 import { parseSpeech } from "./lineHandlers/speech"
 import { getEndifIndex, handleIf } from "./lineHandlers/ifBlock"
+import { extractJumpNodeTitle } from "./lineHandlers/jump"
 
 export function createTape(
   story: string,
   settings?: Partial<Settings> | null
 ): [Tape, (option?: number | string) => void] {
   const _settings = createSettings(settings)
-  const normalize = _settings.normalizeText
 
   const nodes = parseNodes(story)
-  let node = getNode(nodes, _settings.startNode)
+  let node = findNode(nodes, _settings.startNode)
 
-  const state = createInitialState(
+  let state = createInitialState(
     _settings.startNode,
-    _settings.variables,
-    node.tags
+    node.tags,
+    _settings.variables
   )
 
   function next(option?: string | number): void {
     if (state.dialogue.type === "end") {
-      node = getNode(nodes, _settings.startNode)
-
-      Object.assign(
-        state,
-        createInitialState(_settings.startNode, _settings.variables, node.tags)
-      )
+      return
     }
 
     if (node.title !== state.node.title) {
-      node = getNode(nodes, state.node.title)
+      node = findNode(nodes, state.node.title)
     }
 
-    const lines = node.body
+    let lines = node.body
 
     if (state.dialogue.type === "options") {
+      if (option == null) {
+        throw new StorytapeError(
+          'The option is not passed to the "next" method'
+        )
+      }
       state.node.line = findOptionIndex(
         option,
         state.dialogue.options,
@@ -65,10 +65,10 @@ export function createTape(
       state.dialogue.options = []
     }
 
-    let line: string
+    const normalize = _settings.normalizeText
 
     while (++state.node.line < lines.length) {
-      line = lines[state.node.line]
+      const line = lines[state.node.line]
 
       if (lineIsEmpty(line) || lineIsComment(line)) continue
 
@@ -83,6 +83,13 @@ export function createTape(
         const [name, value] = parseVariable(line, state.variables)
         state.variables[name] = value
       } else if (lineIsJump(line)) {
+        node = findNode(nodes, extractJumpNodeTitle(line))
+        lines = node.body
+
+        Object.assign(
+          state,
+          createInitialState(node.title, node.tags, state.variables)
+        )
         continue
       } else if (lineIsCommand(line)) {
         continue
@@ -117,8 +124,8 @@ export function createTape(
 
 function createInitialState(
   nodeTitle: string,
-  variables: Variables,
-  tags: string[]
+  tags: string[],
+  variables: Variables
 ): Tape {
   const state: Tape = {
     dialogue: {

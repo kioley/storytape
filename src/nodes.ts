@@ -1,4 +1,5 @@
 import { YarnSpinnerNode } from "."
+import { StorytapeError } from "./utils"
 
 export function parseNodes(yarnRaw: string) {
   const nodes: YarnSpinnerNode[] = []
@@ -28,13 +29,13 @@ export function parseNodes(yarnRaw: string) {
 
 function splitNode(nodeRaw: string): [headerRaw: string, bodyRaw: string] {
   if (!/\r?\n---\r?\n/.test(nodeRaw)) {
-    throw new SyntaxError("One of the nodes has no delimiter")
+    throw new StorytapeError("One of the nodes has no delimiter")
   }
 
   const [headerRaw, bodyRaw] = nodeRaw.split("\n---")
 
   if (!headerRaw.trim()) {
-    throw new SyntaxError("One of the nodes has no header")
+    throw new StorytapeError("One of the nodes has no header")
   }
 
   return [headerRaw, bodyRaw]
@@ -44,7 +45,7 @@ function parseTitle(header: string): string {
   const title = header.match(/title\s*:\s*(\w*)/i)?.[1]
 
   if (!title) {
-    throw new SyntaxError("One of the nodes has no title")
+    throw new StorytapeError("One of the nodes has no title")
   }
 
   return title
@@ -63,14 +64,14 @@ function parseTags(header: string): string[] {
   return tags
 }
 
-export function getNode(
+export function findNode(
   nodes: YarnSpinnerNode[],
   title: string
 ): YarnSpinnerNode {
   const node = nodes.find((n) => n.title === title)
 
   if (!node) {
-    throw new Error(`[storytape] No "${title}" node is found`)
+    throw new StorytapeError(`No "${title}" node is found`)
   }
 
   return node

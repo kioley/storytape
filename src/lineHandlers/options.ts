@@ -1,5 +1,5 @@
 import { Settings, Speech } from ".."
-import { countIndents } from "../utils"
+import { StorytapeError, countIndents } from "../utils"
 import { lineIsOption } from "../utils/checkLineType"
 import { parseSpeech } from "./speech"
 
@@ -36,23 +36,20 @@ function clearOption(line: string): string {
 export function skipOptions(lines: string[], start: number, indents: number) {
   let nextIndex = lines.length
   for (let i = start; i < lines.length; i++) {
-    if (countIndents(lines[i]) >= indents && !lineIsOption(lines[i])) {
-      nextIndex = i
+    if (countIndents(lines[i]) <= indents && !lineIsOption(lines[i])) {
+      nextIndex = i - 1
+      break
     }
   }
   return nextIndex
 }
 
 export function findOptionIndex(
-  option: string | number | undefined,
+  option: string | number,
   options: Speech[],
   lines: string[],
   index: number
 ): number {
-  if (option == null) {
-    throw new Error('[storytape] The option is not passed to the "next" method')
-  }
-
   let optionText: string | undefined
   switch (typeof option) {
     case "string":
@@ -62,11 +59,11 @@ export function findOptionIndex(
       optionText = options[option].text
       break
     default:
-      throw new Error(`[storytape] The wrong option "${option}"`)
+      throw new StorytapeError(`The wrong option "${option}"`)
   }
 
   if (!optionText) {
-    throw new Error(`[storytape] The wrong option "${option}"`)
+    throw new StorytapeError(`The wrong option "${option}"`)
   }
 
   const indents = countIndents(lines[index])
@@ -83,7 +80,7 @@ export function findOptionIndex(
   }
 
   if (!optionIndex) {
-    throw new Error(`[storytape] The option is not found "${option}"`)
+    throw new StorytapeError(`The option is not found "${option}"`)
   }
 
   return optionIndex

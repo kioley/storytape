@@ -1,6 +1,3 @@
-import { Settings } from ".."
-import { evalExpression } from "./evalString"
-
 const escapingChars = {
   "\\": "L34KLFdfg3",
   "#": "jt5437teWY",
@@ -64,14 +61,9 @@ export function extractInlineCondition(str: string): [string, string | false] {
   return [str, condition]
 }
 
-export function checkCondition(
-  str: string,
-  variables: Settings["variables"]
-): boolean {
-  const condition = str.match(/<<\s*(else\s*)?if(.+)>>/)?.[2]
-  if (!condition) {
-    throw new Error(`[storytape] The condition cannot be resolved "${str}"`)
+export class StorytapeError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = "StorytapeError"
   }
-
-  return !!evalExpression(condition, variables)
 }

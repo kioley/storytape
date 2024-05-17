@@ -1,5 +1,6 @@
 import { Settings, Variable } from ".."
-import { evalExpression } from "../utils/evalString"
+import { StorytapeError } from "../utils"
+import { evalExpression } from "../utils/evalExpression"
 
 export function parseVariable(
   str: string,
@@ -10,7 +11,7 @@ export function parseVariable(
   const groups = str.match(reg)?.groups
 
   if (!groups) {
-    throw new Error(`[storytape] Wrong assignment string: "${str}"`)
+    throw new StorytapeError(`Wrong assignment string: "${str}"`)
   }
 
   const { name, assign, expression } = groups
